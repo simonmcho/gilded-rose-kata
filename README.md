@@ -18,6 +18,7 @@ This is not a full application, but to show one possible refactoring solution to
 
 ## How to get Started
 <a name="how-to-get-started"></a>
+- Navigate to `TypeScript` directory
 - Clone this repository and install all dependencies using `npm install`
 - Run `npm run test` to trigger unit tests
 
