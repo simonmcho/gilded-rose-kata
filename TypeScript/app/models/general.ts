@@ -16,6 +16,7 @@ export class General {
       this.updateQualityProcessor();
     }
     this.updateQuality();
+    this.setQualityThreshold();
   }
 
   isSellInMinLimit(): boolean {
@@ -26,19 +27,23 @@ export class General {
     this.qualityProcessor += 1;
   }
 
-  isQualityMaxLimit(): boolean {
-    return this.quality >= 50;
-  }
-
-  isQualityMinLimit(): boolean {
-    return this.quality <= 0;
+  setQualityThreshold(): void {
+    if (this.quality > 50) {
+      this.quality = 50;
+    }
+    if (this.quality < 0) {
+      this.quality = 0;
+    }
   }
 
   updateQuality(): void {
     this.sellIn -= 1;
-    const canUpdateQuality = !this.isQualityMinLimit();
+    const canUpdateQuality = this.quality > 0;
     if (canUpdateQuality) {
       this.quality -= this.qualityProcessor;
+    }
+    if (this.quality < 0) {
+      this.quality = 0;
     }
   }
 }

@@ -5,11 +5,6 @@ export class BackstagePass extends General {
     super(name, sellIn, quality);
   }
 
-  processItem(): void {
-    this.updateQualityProcessor();
-    this.updateQuality();
-  }
-
   // Not consistent calculation
   updateQualityProcessor(): void {
     if (this.sellIn <= 10) {
@@ -24,6 +19,7 @@ export class BackstagePass extends General {
   }
 
   updateQuality(): void {
+    this.updateQualityProcessor();
     this.sellIn -= 1;
     this.quality += this.qualityProcessor;
     if (!this.qualityProcessor) { // Not consistent calculation

@@ -1,6 +1,6 @@
 import { General } from './general';
 
-const SELL_IN_VALUE = 80;
+const QUALITY_VALUE = 80;
 
 export class Sulfuras extends General {
   constructor(name, sellIn, quality) {
@@ -8,6 +8,6 @@ export class Sulfuras extends General {
   }
 
   processItem(): void {
-    this.sellIn = SELL_IN_VALUE;
+    this.quality = QUALITY_VALUE;
   }
 }
