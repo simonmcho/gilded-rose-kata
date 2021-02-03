@@ -44,7 +44,7 @@ The `processItem` calls other methods of the same instance, and these methods ca
 ### But how was it refactored?
 Good question. At first, I attempted to be a genius coding wizard, emptied the RAM in my brain, and after a quick glance at the instructions, wrote some pseudo code that I *thought* would work. That was a mistake, because the nested conditional hell that I dove myself into was an adventure not for the weak-hearted. Alas, I thought back to real scenarios where I experienced something similar, both mentally and emotionally.
 
-To have an evidence-based refactoring approach, I decided to write unit tests first. Writing unit tests can be tricky because 100% coverage doesn't mean much if it doesn't test the integrity of the app/function.
+To have an evidence-based refactoring approach, I decided to write unit tests first. Writing unit tests can be tricky because 100% coverage doesn't mean much if it doesn't test the integrity of the app/function. So once I wrote good test cases, I would run the tests, made sure they all passed with the original code, then started refactoring it based on each test case I wrote.
 
 I left my thought-process via comments in the unit test for [`gilded-rose.spec.ts`](./test/gilded-rose.spec.ts), and these comments should be deleted. It is based on the business requirements as well as cross-referencing the original code. This helped me understand the goals of each known item.
 
@@ -52,10 +52,15 @@ I also added some unit tests for the `General` and `AgedBrie` model class, but t
 
 Once the test cases were written, it was much easier to refactor the code. I understood what each model class's instance methods needed to do, and what utility function was required to build the appropriate item. After that, it was a matter of iterating the list of items, building the appropriate item, and then processing it.
 
-## Considerations
+## Considerations and Assumptions
 <a name="considerations"></a>
 - Need a unit test for `item-processor.ts`
 - Need unit tests for the other models
 - The implementation of model class methods could improve. For instance, I try not to overwrite the `processItem` method, but in cases like `Conjure`, I had to do so
 - `BackstagePass`'s `updateQualityProcessor` method isn't as consistent, because it forces a complete overhaul of `updateQuality` method to meet the business requirement of setting `quality` to 0 if it is past the sell date
 - Global `constants.ts` is probably not the best idea, better to keep it in a more appropriate directory where the `Item` class can also live
+
+Assumptions were made for the following:
+- The business requirements in `GildedRoseRequirements.txt` file is exhaustive
+- The original code met the business requirements, except for the next point
+- The `sulfuras` scenario in the original code did not set the quality to `80`. I prioritized the business requirement, and the refactored code now sets the quality to `80`, no matter the scenario
