@@ -1,31 +1,60 @@
 # Gilded Rose Refactoring Kata
 
-This Kata was originally created by Terry Hughes (http://twitter.com/TerryHughes). It is already on GitHub [here](https://github.com/NotMyself/GildedRose). See also [Bobby Johnson's description of the kata](http://iamnotmyself.com/2011/02/13/refactor-this-the-gilded-rose-kata/).
+This repository is the code base for the Gilded Rose Refactoring Kata. I chose to complete the exercise via TypeScript.
 
-I translated the original C# into a few other languages, (with a little help from my friends!), and slightly changed the starting position. This means I've actually done a small amount of refactoring already compared with the original form of the kata, and made it easier to get going with writing tests by giving you one failing unit test to start with. I also added test fixtures for Text-Based approval testing with TextTest (see [the TextTests](https://github.com/emilybache/GildedRose-Refactoring-Kata/tree/master/texttests))
+This is not a full application, but to show one possible refactoring solution to this exercise. As such, there is no start script to "run" the application.
 
-As Bobby Johnson points out in his article ["Why Most Solutions to Gilded Rose Miss The Bigger Picture"](http://iamnotmyself.com/2012/12/07/why-most-solutions-to-gilded-rose-miss-the-bigger-picture), it'll actually give you
-better practice at handling a legacy code situation if you do this Kata in the original C#. However, I think this kata
-is also really useful for practicing writing good tests using different frameworks and approaches, and the small changes I've made help with that. I think it's also interesting to compare what the refactored code and tests look like in different programming languages.
+## Table of Contents
+1. [Pre-requisites](#pre-requisites)
+2. [How to get Started](#how-to-get-started)
+3. [Code Explanation](#code-explanation)
+4. [Considerations](#considerations)
 
-I wrote this article ["Writing Good Tests for the Gilded Rose Kata"](http://coding-is-like-cooking.info/2013/03/writing-good-tests-for-the-gilded-rose-kata/) about how you could use this kata in a [coding dojo](https://leanpub.com/codingdojohandbook).
+## Pre-Requisites
+<a name="pre-requisites"></a>
 
-## How to use this Kata
+- TypeScript
+- [Unit Testing (chai)](#unit-testing)
 
-The simplest way is to just clone the code and start hacking away improving the design. You'll want to look at the ["Gilded Rose Requirements"](https://github.com/emilybache/GildedRose-Refactoring-Kata/tree/master/GildedRoseRequirements.txt) which explains what the code is for. I strongly advise you that you'll also need some tests if you want to make sure you don't break the code while you refactor.
+## How to get Started
+<a name="how-to-get-started"></a>
+- Clone this repository and install all dependencies using `npm install`
+- Run `npm run test` to trigger unit tests
 
-You could write some unit tests yourself, using the requirements to identify suitable test cases. I've provided a failing unit test in a popular test framework as a starting point for most languages.
+## Code Explanation
+<a name="code-explanation"></a>
+The refactored code is all in `./app`.
 
-Alternatively, use the "Text-Based" tests provided in this repository. (Read more about that in the next section)
+My approach is separated into 3 areas of considerations:
+1. `GildedRose` class that maintains the existence and execution of `updateQuality` method
+2. A utility class called `ItemProcessor`. It has a single static method to build the appropriate item based on `item.name`
+3. A collection of "models" classes. There is a `General` model class that acts as a basis for an item. Each of the following 4 models represents a known item:
+  - Aged Brie
+  - BackstagePass
+  - Sulfuras
+  - Conjured
 
-Whichever testing approach you choose, the idea of the exercise is to do some deliberate practice, and improve your skills at designing test cases and refactoring. The idea is not to re-write the code from scratch, but rather to practice designing tests, taking small steps, running the tests often, and incrementally improving the design. 
+Each model extends `General` class to share the same instance variables and methods, especially `processItem`.
 
-## Text-Based Approval Testing
+Upon iteration of of the list of items in `GildedRose`'s `updateQuality` method, it will determine which model class to build the item, and then execute `processItem`.
 
-This code comes with comprehensive tests that use this approach. For information about how to run them, see the [texttests README](https://github.com/emilybache/GildedRose-Refactoring-Kata/tree/master/texttests)
+The `processItem` calls other methods of the same instance, and these methods can vary per model, as per business requirements stated in [GildedRoseRequirements.txt](./GildedRoseRequirements.txt).
 
-## Better Code Hub
+### But how was it refactored?
+Good question. At first, I attempted to be a genius coding wizard, emptied the RAM in my brain, and after a quick glance at the instructions, wrote some pseudo code that I *thought* would work. That was a mistake, because the nested conditional hell that I dove myself into was an adventure not for the weak-hearted. Alas, I thought back to real scenarios where I experienced something similar, both mentally and emotionally.
 
-I analysed this repo according to the clean code standards on [Better Code Hub](https://bettercodehub.com) just to get an independent opinion of how bad the code is. Perhaps unsurprisingly, the compliance score is low!
+To have an evidence-based refactoring approach, I decided to write unit tests first. Writing unit tests can be tricky because 100% coverage doesn't mean much if it doesn't test the integrity of the app/function.
 
-[![BCH compliance](https://bettercodehub.com/edge/badge/emilybache/GildedRose-Refactoring-Kata?branch=master)](https://bettercodehub.com/) 
+I left my thought-process via comments in the unit test for [`gilded-rose.spec.ts`](./test/gilded-rose.spec.ts), and these comments should be deleted. It is based on the business requirements as well as cross-referencing the original code. This helped me understand the goals of each known item.
+
+I also added some unit tests for the `General` and `AgedBrie` model class, but technically the `GildedRose` test covers this. It is still there in case an item is removed from the business but we want to keep the model just in case.
+
+Once the test cases were written, it was much easier to refactor the code. I understood what each model class's instance methods needed to do, and what utility function was required to build the appropriate item. After that, it was a matter of iterating the list of items, building the appropriate item, and then processing it.
+
+## Considerations
+<a name="considerations"></a>
+- Need a unit test for `item-processor.ts`
+- Need unit tests for the other models
+- The implementation of model class methods could improve. For instance, I try not to overwrite the `processItem` method, but in cases like `Conjure`, I had to do so
+- `BackstagePass`'s `updateQualityProcessor` method isn't as consistent, because it forces a complete overhaul of `updateQuality` method to meet the business requirement of setting `quality` to 0 if it is past the sell date
+- Global `constants.ts` is probably not the best idea, better to keep it in a more appropriate directory where the `Item` class can also live
